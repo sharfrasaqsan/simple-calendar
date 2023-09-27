@@ -11,17 +11,28 @@ class App extends Component {
     super(props);
     this.state = {
       currentMonth: new Date(),
-      events: [], // Array to store events
-      selectedDate: null, // To track the selected date for event actions
+      events: [],
+      selectedDate: null,
+      isDatePickerOpen: false, // Add this state variable
     };
   }
+
+  // Callback when the calendar is opened
+  handleCalendarOpen = () => {
+    this.setState({ isDatePickerOpen: true });
+  };
+
+  // Callback when the calendar is closed
+  handleCalendarClose = () => {
+    this.setState({ isDatePickerOpen: false });
+  };
 
   render() {
     const { currentMonth, selectedDate } = this.state;
     const today = new Date();
 
     return (
-      <div className="container mt-5">
+      <div className="container">
         <div className="card">
           <div className="card-header">
             <h1 className="text-center">Simple Calendar</h1>
@@ -38,6 +49,11 @@ class App extends Component {
                 dateFormat="MMMM yyyy"
                 showMonthYearPicker
                 className="form-control"
+                onCalendarOpen={this.handleCalendarOpen}
+                onCalendarClose={this.handleCalendarClose}
+                calendarClassName={
+                  this.state.isDatePickerOpen ? "custom-datepicker" : ""
+                }
               />
               <button
                 className="btn btn-primary"

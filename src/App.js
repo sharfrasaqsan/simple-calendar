@@ -5,25 +5,26 @@ import "./App.css";
 import DatePicker from "react-datepicker";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faArrowLeft, faArrowRight } from "@fortawesome/free-solid-svg-icons";
-import { format, startOfYear, addDays, getDayOfYear } from "date-fns";
 
 class App extends Component {
   constructor(props) {
     super(props);
     this.state = {
       currentMonth: new Date(),
+      events: [], // Array to store events
+      selectedDate: null, // To track the selected date for event actions
     };
   }
 
   render() {
-    const { currentMonth } = this.state;
+    const { currentMonth, selectedDate } = this.state;
     const today = new Date();
 
     return (
       <div className="container mt-5">
         <div className="card">
           <div className="card-header">
-            <h1 className="text-center">Calendar App</h1>
+            <h1 className="text-center">Simple Calendar</h1>
             <div className="d-flex justify-content-between align-items-center">
               <button
                 className="btn btn-primary"
@@ -50,7 +51,6 @@ class App extends Component {
             <table className="table table-bordered">
               <thead>
                 <tr className="table-primary">
-                  <th className="text-muted font-weight-bold">Week</th>
                   <th className="text-danger">Sun</th>
                   <th>Mon</th>
                   <th>Tue</th>
@@ -64,6 +64,27 @@ class App extends Component {
             </table>
           </div>
         </div>
+
+        {/* Event Management Section */}
+        {selectedDate && (
+          <div className="mt-4">
+            <h2 className="text-center">Event Management</h2>
+            <div className="text-center">
+              <button
+                className="btn btn-success mr-2"
+                onClick={this.createEvent}
+              >
+                Create Event
+              </button>
+              <button className="btn btn-warning mr-2" onClick={this.editEvent}>
+                Edit Event
+              </button>
+              <button className="btn btn-danger" onClick={this.deleteEvent}>
+                Delete Event
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     );
   }
@@ -85,7 +106,6 @@ class App extends Component {
     ).getDate();
     const calendarGrid = [];
     let dayCounter = 1;
-    let weekNumber = 1;
 
     for (let i = 0; i < 6; i++) {
       const row = [];
@@ -118,27 +138,15 @@ class App extends Component {
         }
       }
 
-      if (dayCounter > daysInMonth) {
-        // Only add the row if it's not the last row and it's not entirely empty
-        if (i < 5 && row.some((cell) => cell !== " ")) {
-          calendarGrid.push(
-            <tr key={i}>
-              <td className="text-muted font-weight-bold">{weekNumber}</td>
-              {row}
-            </tr>
-          );
-        }
-      } else {
-        calendarGrid.push(
-          <tr key={i}>
-            <td className="text-muted font-weight-bold">{weekNumber}</td>
-            {row}
-          </tr>
-        );
-      }
+      // Check if all cells in the row are empty
+      const isRowEmpty = row.every((cell) => {
+        const cellContent = String(cell.props.children || ""); // Convert to string
+        return cellContent.trim() === "";
+      });
 
-      // Calculate the next week number
-      weekNumber++;
+      if (!isRowEmpty) {
+        calendarGrid.push(<tr key={i}>{row}</tr>);
+      }
     }
 
     return calendarGrid;
